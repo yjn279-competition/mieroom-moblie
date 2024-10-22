@@ -2,7 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../database/database.dart';
 import '../models/profile.dart' as profile_model;
 
-final databaseProvider = Provider((ref) => AppDatabase());
+final databaseProvider = Provider((ref) => AppDatabase.instance);
 
 final profilesProvider =
     FutureProvider<List<profile_model.Profile>>((ref) async {

@@ -4,6 +4,9 @@ import 'check_in_page.dart';
 import 'profile_view_page.dart';
 import '../models/safety_status.dart';
 import '../providers/profile_provider.dart';
+import '../providers/user_status_provider.dart';
+import '../models/user_status.dart';
+import 'qr_scanner_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -14,7 +17,6 @@ class HomePage extends ConsumerStatefulWidget {
 
 class _HomePageState extends ConsumerState<HomePage> {
   int _selectedIndex = 0;
-  bool _isInShelter = false;
   SafetyStatus _myStatus =
       SafetyStatus(name: '自分', status: SafetyStatusType.unknown);
 
@@ -46,12 +48,6 @@ class _HomePageState extends ConsumerState<HomePage> {
     });
   }
 
-  void _toggleShelterStatus() {
-    setState(() {
-      _isInShelter = !_isInShelter;
-    });
-  }
-
   void _updateMyStatus(SafetyStatusType newStatus) {
     setState(() {
       _myStatus = SafetyStatus(name: _myStatus.name, status: newStatus);
@@ -61,6 +57,7 @@ class _HomePageState extends ConsumerState<HomePage> {
 
   Widget _buildHomeContent() {
     final profilesAsyncValue = ref.watch(profilesProvider);
+    final userStatus = ref.watch(userStatusProvider);
 
     return profilesAsyncValue.when(
       data: (profiles) {
@@ -82,14 +79,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                   style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                _buildStatusCard(),
-                const SizedBox(height: 24),
-                const Text(
-                  '自分の安否情報',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                _buildSafetyStatusCard(),
+                _buildStatusCard(userStatus),
                 const SizedBox(height: 24),
                 const Text(
                   '家族の安否情報',
@@ -107,7 +97,8 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Widget _buildStatusCard() {
+  Widget _buildStatusCard(UserStatus? userStatus) {
+    final isInShelter = userStatus?.isInShelter == true;
     return Card(
       elevation: 4,
       child: Padding(
@@ -115,20 +106,47 @@ class _HomePageState extends ConsumerState<HomePage> {
         child: Column(
           children: [
             Text(
-              _isInShelter ? '避難所にいます' : '避難所にいません',
+              userStatus?.status ?? '不明',
               style: TextStyle(
-                fontSize: 18,
+                fontSize: 20,
                 fontWeight: FontWeight.bold,
-                color: _isInShelter ? Colors.green : Colors.red,
+                color: _getStatusColor(userStatus?.status),
               ),
             ),
             const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _toggleShelterStatus,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: _isInShelter ? Colors.red : Colors.green,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color:
+                    isInShelter ? Colors.green.shade100 : Colors.red.shade100,
+                borderRadius: BorderRadius.circular(8),
               ),
-              child: Text(_isInShelter ? '避難所を出る' : '避難所に入る'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    isInShelter ? Icons.home : Icons.home_outlined,
+                    size: 30,
+                    color: isInShelter ? Colors.green : Colors.red,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    isInShelter ? '避難所にいます' : '避難所にいません',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: isInShelter
+                          ? Colors.green.shade800
+                          : Colors.red.shade800,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              '最終更新: ${userStatus?.lastUpdated != null ? _formatDateTime(userStatus!.lastUpdated) : "不明"}',
+              style: const TextStyle(fontSize: 14, color: Colors.grey),
             ),
           ],
         ),
@@ -148,7 +166,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: _getStatusColor(_myStatus.status),
+                color: _getStatusColor(_myStatus.status.toString()),
               ),
             ),
             const SizedBox(height: 16),
@@ -195,7 +213,7 @@ class _HomePageState extends ConsumerState<HomePage> {
                 status.status.toString().split('.').last,
                 style: const TextStyle(color: Colors.white),
               ),
-              backgroundColor: _getStatusColor(status.status),
+              backgroundColor: _getStatusColor(status.status.toString()),
             ),
           ],
         ),
@@ -203,22 +221,28 @@ class _HomePageState extends ConsumerState<HomePage> {
     );
   }
 
-  Color _getStatusColor(SafetyStatusType status) {
+  Color _getStatusColor(String? status) {
     switch (status) {
-      case SafetyStatusType.safe:
+      case '安全':
         return Colors.green;
-      case SafetyStatusType.needHelp:
+      case '要支援':
+        return Colors.orange;
+      case '急':
         return Colors.red;
-      case SafetyStatusType.unknown:
+      default:
         return Colors.grey;
     }
+  }
+
+  String _formatDateTime(DateTime dateTime) {
+    return '${dateTime.year}/${dateTime.month}/${dateTime.day} ${dateTime.hour}:${dateTime.minute}';
   }
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> _widgetOptions = <Widget>[
       _buildHomeContent(),
-      const CheckInPage(),
+      const QRScannerPage(),
       const ProfileViewPage(),
     ];
 
@@ -233,8 +257,8 @@ class _HomePageState extends ConsumerState<HomePage> {
             label: 'ホーム',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.check),
-            label: 'チェックイン',
+            icon: Icon(Icons.qr_code_scanner),
+            label: 'QRスキャン',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),
