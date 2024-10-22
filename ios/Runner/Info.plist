@@ -53,5 +53,22 @@
 	<array>
 		<string>bluetooth-central</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>com.MakotoKono.mieroom</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>mieroom</string>
+			</array>
+		</dict>
+	</array>
+	<key>FlutterDeepLinkingEnabled</key>
+	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>QRコードをスキャンするためにカメラを使用します。</string>
 </dict>
 </plist>

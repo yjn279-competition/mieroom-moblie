@@ -88,14 +88,6 @@ class ProfileViewPage extends ConsumerWidget {
                 label: const Text('プロフィール編集'),
               ),
             ),
-            const SizedBox(height: 20),
-            Center(
-              child: ElevatedButton.icon(
-                onPressed: () => _sendProfileViaBLE(context, profile),
-                icon: const Icon(Icons.bluetooth),
-                label: const Text('プロフィールをBLEで送信'),
-              ),
-            ),
           ],
         ),
       ),
@@ -224,21 +216,4 @@ class ProfileViewPage extends ConsumerWidget {
   //     );
   //   }
   // }
-  void _sendProfileViaBLE(
-      BuildContext context, profile_model.Profile profile) async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('プロフィールの広告を開始します...')),
-    );
-
-    try {
-      await BLEService.advertiseProfile(profile);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('プロフィールの広告を開始しました')),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('広告開始中にエラーが発生しました: $e')),
-      );
-    }
-  }
 }

@@ -382,15 +382,285 @@ class ProfilesCompanion extends UpdateCompanion<Profile> {
   }
 }
 
+class $UserStatusesTable extends UserStatuses
+    with TableInfo<$UserStatusesTable, UserStatuse> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $UserStatusesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isInShelterMeta =
+      const VerificationMeta('isInShelter');
+  @override
+  late final GeneratedColumn<bool> isInShelter = GeneratedColumn<bool>(
+      'is_in_shelter', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_in_shelter" IN (0, 1))'));
+  static const VerificationMeta _lastUpdatedMeta =
+      const VerificationMeta('lastUpdated');
+  @override
+  late final GeneratedColumn<DateTime> lastUpdated = GeneratedColumn<DateTime>(
+      'last_updated', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, status, isInShelter, lastUpdated];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'user_statuses';
+  @override
+  VerificationContext validateIntegrity(Insertable<UserStatuse> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    } else if (isInserting) {
+      context.missing(_statusMeta);
+    }
+    if (data.containsKey('is_in_shelter')) {
+      context.handle(
+          _isInShelterMeta,
+          isInShelter.isAcceptableOrUnknown(
+              data['is_in_shelter']!, _isInShelterMeta));
+    } else if (isInserting) {
+      context.missing(_isInShelterMeta);
+    }
+    if (data.containsKey('last_updated')) {
+      context.handle(
+          _lastUpdatedMeta,
+          lastUpdated.isAcceptableOrUnknown(
+              data['last_updated']!, _lastUpdatedMeta));
+    } else if (isInserting) {
+      context.missing(_lastUpdatedMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  UserStatuse map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return UserStatuse(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      isInShelter: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_in_shelter'])!,
+      lastUpdated: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}last_updated'])!,
+    );
+  }
+
+  @override
+  $UserStatusesTable createAlias(String alias) {
+    return $UserStatusesTable(attachedDatabase, alias);
+  }
+}
+
+class UserStatuse extends DataClass implements Insertable<UserStatuse> {
+  final int id;
+  final String status;
+  final bool isInShelter;
+  final DateTime lastUpdated;
+  const UserStatuse(
+      {required this.id,
+      required this.status,
+      required this.isInShelter,
+      required this.lastUpdated});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['status'] = Variable<String>(status);
+    map['is_in_shelter'] = Variable<bool>(isInShelter);
+    map['last_updated'] = Variable<DateTime>(lastUpdated);
+    return map;
+  }
+
+  UserStatusesCompanion toCompanion(bool nullToAbsent) {
+    return UserStatusesCompanion(
+      id: Value(id),
+      status: Value(status),
+      isInShelter: Value(isInShelter),
+      lastUpdated: Value(lastUpdated),
+    );
+  }
+
+  factory UserStatuse.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return UserStatuse(
+      id: serializer.fromJson<int>(json['id']),
+      status: serializer.fromJson<String>(json['status']),
+      isInShelter: serializer.fromJson<bool>(json['isInShelter']),
+      lastUpdated: serializer.fromJson<DateTime>(json['lastUpdated']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'status': serializer.toJson<String>(status),
+      'isInShelter': serializer.toJson<bool>(isInShelter),
+      'lastUpdated': serializer.toJson<DateTime>(lastUpdated),
+    };
+  }
+
+  UserStatuse copyWith(
+          {int? id,
+          String? status,
+          bool? isInShelter,
+          DateTime? lastUpdated}) =>
+      UserStatuse(
+        id: id ?? this.id,
+        status: status ?? this.status,
+        isInShelter: isInShelter ?? this.isInShelter,
+        lastUpdated: lastUpdated ?? this.lastUpdated,
+      );
+  UserStatuse copyWithCompanion(UserStatusesCompanion data) {
+    return UserStatuse(
+      id: data.id.present ? data.id.value : this.id,
+      status: data.status.present ? data.status.value : this.status,
+      isInShelter:
+          data.isInShelter.present ? data.isInShelter.value : this.isInShelter,
+      lastUpdated:
+          data.lastUpdated.present ? data.lastUpdated.value : this.lastUpdated,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserStatuse(')
+          ..write('id: $id, ')
+          ..write('status: $status, ')
+          ..write('isInShelter: $isInShelter, ')
+          ..write('lastUpdated: $lastUpdated')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, status, isInShelter, lastUpdated);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is UserStatuse &&
+          other.id == this.id &&
+          other.status == this.status &&
+          other.isInShelter == this.isInShelter &&
+          other.lastUpdated == this.lastUpdated);
+}
+
+class UserStatusesCompanion extends UpdateCompanion<UserStatuse> {
+  final Value<int> id;
+  final Value<String> status;
+  final Value<bool> isInShelter;
+  final Value<DateTime> lastUpdated;
+  const UserStatusesCompanion({
+    this.id = const Value.absent(),
+    this.status = const Value.absent(),
+    this.isInShelter = const Value.absent(),
+    this.lastUpdated = const Value.absent(),
+  });
+  UserStatusesCompanion.insert({
+    this.id = const Value.absent(),
+    required String status,
+    required bool isInShelter,
+    required DateTime lastUpdated,
+  })  : status = Value(status),
+        isInShelter = Value(isInShelter),
+        lastUpdated = Value(lastUpdated);
+  static Insertable<UserStatuse> custom({
+    Expression<int>? id,
+    Expression<String>? status,
+    Expression<bool>? isInShelter,
+    Expression<DateTime>? lastUpdated,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (status != null) 'status': status,
+      if (isInShelter != null) 'is_in_shelter': isInShelter,
+      if (lastUpdated != null) 'last_updated': lastUpdated,
+    });
+  }
+
+  UserStatusesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? status,
+      Value<bool>? isInShelter,
+      Value<DateTime>? lastUpdated}) {
+    return UserStatusesCompanion(
+      id: id ?? this.id,
+      status: status ?? this.status,
+      isInShelter: isInShelter ?? this.isInShelter,
+      lastUpdated: lastUpdated ?? this.lastUpdated,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (isInShelter.present) {
+      map['is_in_shelter'] = Variable<bool>(isInShelter.value);
+    }
+    if (lastUpdated.present) {
+      map['last_updated'] = Variable<DateTime>(lastUpdated.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('UserStatusesCompanion(')
+          ..write('id: $id, ')
+          ..write('status: $status, ')
+          ..write('isInShelter: $isInShelter, ')
+          ..write('lastUpdated: $lastUpdated')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $ProfilesTable profiles = $ProfilesTable(this);
+  late final $UserStatusesTable userStatuses = $UserStatusesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
   @override
-  List<DatabaseSchemaEntity> get allSchemaEntities => [profiles];
+  List<DatabaseSchemaEntity> get allSchemaEntities => [profiles, userStatuses];
 }
 
 typedef $$ProfilesTableCreateCompanionBuilder = ProfilesCompanion Function({
@@ -563,10 +833,142 @@ typedef $$ProfilesTableProcessedTableManager = ProcessedTableManager<
     (Profile, BaseReferences<_$AppDatabase, $ProfilesTable, Profile>),
     Profile,
     PrefetchHooks Function()>;
+typedef $$UserStatusesTableCreateCompanionBuilder = UserStatusesCompanion
+    Function({
+  Value<int> id,
+  required String status,
+  required bool isInShelter,
+  required DateTime lastUpdated,
+});
+typedef $$UserStatusesTableUpdateCompanionBuilder = UserStatusesCompanion
+    Function({
+  Value<int> id,
+  Value<String> status,
+  Value<bool> isInShelter,
+  Value<DateTime> lastUpdated,
+});
+
+class $$UserStatusesTableFilterComposer
+    extends FilterComposer<_$AppDatabase, $UserStatusesTable> {
+  $$UserStatusesTableFilterComposer(super.$state);
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get status => $state.composableBuilder(
+      column: $state.table.status,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get isInShelter => $state.composableBuilder(
+      column: $state.table.isInShelter,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get lastUpdated => $state.composableBuilder(
+      column: $state.table.lastUpdated,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+}
+
+class $$UserStatusesTableOrderingComposer
+    extends OrderingComposer<_$AppDatabase, $UserStatusesTable> {
+  $$UserStatusesTableOrderingComposer(super.$state);
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get status => $state.composableBuilder(
+      column: $state.table.status,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get isInShelter => $state.composableBuilder(
+      column: $state.table.isInShelter,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get lastUpdated => $state.composableBuilder(
+      column: $state.table.lastUpdated,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+}
+
+class $$UserStatusesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $UserStatusesTable,
+    UserStatuse,
+    $$UserStatusesTableFilterComposer,
+    $$UserStatusesTableOrderingComposer,
+    $$UserStatusesTableCreateCompanionBuilder,
+    $$UserStatusesTableUpdateCompanionBuilder,
+    (
+      UserStatuse,
+      BaseReferences<_$AppDatabase, $UserStatusesTable, UserStatuse>
+    ),
+    UserStatuse,
+    PrefetchHooks Function()> {
+  $$UserStatusesTableTableManager(_$AppDatabase db, $UserStatusesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$UserStatusesTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$UserStatusesTableOrderingComposer(ComposerState(db, table)),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<bool> isInShelter = const Value.absent(),
+            Value<DateTime> lastUpdated = const Value.absent(),
+          }) =>
+              UserStatusesCompanion(
+            id: id,
+            status: status,
+            isInShelter: isInShelter,
+            lastUpdated: lastUpdated,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String status,
+            required bool isInShelter,
+            required DateTime lastUpdated,
+          }) =>
+              UserStatusesCompanion.insert(
+            id: id,
+            status: status,
+            isInShelter: isInShelter,
+            lastUpdated: lastUpdated,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$UserStatusesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $UserStatusesTable,
+    UserStatuse,
+    $$UserStatusesTableFilterComposer,
+    $$UserStatusesTableOrderingComposer,
+    $$UserStatusesTableCreateCompanionBuilder,
+    $$UserStatusesTableUpdateCompanionBuilder,
+    (
+      UserStatuse,
+      BaseReferences<_$AppDatabase, $UserStatusesTable, UserStatuse>
+    ),
+    UserStatuse,
+    PrefetchHooks Function()>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
   $AppDatabaseManager(this._db);
   $$ProfilesTableTableManager get profiles =>
       $$ProfilesTableTableManager(_db, _db.profiles);
+  $$UserStatusesTableTableManager get userStatuses =>
+      $$UserStatusesTableTableManager(_db, _db.userStatuses);
 }
